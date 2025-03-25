@@ -1,0 +1,52 @@
+from PCA9685 import PWM  # Classe PCA9685 décrite plus haut
+import time
+
+# Initialisation du PCA9685
+pwm = PWM(bus_number=1, address=0x40)  # Adresse I2C par défaut : 0x40
+pwm.frequency = 60  # Fréquence de 60 Hz
+
+# Configuration des canaux pour les deux moteurs
+MOTOR_A_SPEED = 0  # Canal pour la vitesse du moteur A
+MOTOR_A_DIR = 1    # Canal pour la direction du moteur A
+MOTOR_B_SPEED = 2  # Canal pour la vitesse du moteur B
+MOTOR_B_DIR = 3    # Canal pour la direction du moteur B
+
+def set_motor(channel_speed, channel_dir, speed, direction):
+    """
+    Contrôle un moteur avec le PCA9685.
+    - channel_speed : Canal pour la vitesse
+    - channel_dir : Canal pour la direction
+    - speed : Vitesse du moteur (0 à 100)
+    - direction : 1 pour avant, 0 pour arrière
+    """
+    # Convertir la vitesse en valeur PWM (0 à 4095)
+    pwm_value = int(PWM.map(speed, 0, 100, 0, 4095))
+    pwm.write(channel_speed, 0, pwm_value)  # Régler la vitesse
+
+    # Régler la direction
+    if direction == 1:  # Avant
+        pwm.write(channel_dir, 0, 4095)  # Activer IN1
+    else:  # Arrière
+        pwm.write(channel_dir, 0, 0)  # Désactiver IN1
+# Exemple d'utilisation
+try:
+    while True:
+        # Moteur A : Avant à 50% de vitesse
+        set_motor(MOTOR_A_SPEED, MOTOR_A_DIR, 50, 1)
+
+        # Moteur B : Arrière à 75% de vitesse
+        set_motor(MOTOR_B_SPEED, MOTOR_B_DIR, 75, 0)
+
+        time.sleep(5)
+
+        # Arrêter les moteurs
+        set_motor(MOTOR_A_SPEED, MOTOR_A_DIR, 0, 1)
+        set_motor(MOTOR_B_SPEED, MOTOR_B_DIR, 0, 1)
+
+        time.sleep(2)
+
+except KeyboardInterrupt:
+    # Arrêter les moteurs en cas d'interruption
+    set_motor(MOTOR_A_SPEED, MOTOR_A_DIR, 0, 1)
+    set_motor(MOTOR_B_SPEED, MOTOR_B_DIR, 0, 1)
+    print("Moteurs arrêtés.")
