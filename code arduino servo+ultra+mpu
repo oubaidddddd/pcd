@@ -1,0 +1,51 @@
+#include <Wire.h>
+#include <MPU6050_tockn.h>
+#include <Servo.h>
+
+MPU6050 mpu6050(Wire);
+Servo ultrasonicServo;
+const int trigPin = 10;
+const int echoPin = 11;
+
+void setup() {
+  Serial.begin(115200);
+  Wire.begin();
+  mpu6050.begin();
+  mpu6050.calcGyroOffsets(true); // Calibration au démarrage
+  
+  ultrasonicServo.attach(9);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+}
+
+void loop() {
+  mpu6050.update();
+  
+  // Lecture de l'IMU
+  float yaw = mpu6050.getAngleZ(); // Orientation en degrés
+  float accelX = mpu6050.getAccX(); // Accélération en X
+  
+  // Balayage ultrasonique
+  for (int angle = 0; angle <= 180; angle += 10) {
+    ultrasonicServo.write(angle);
+    delay(50);
+    float distance = getDistance();
+    
+    // Envoi des données via Serial (Format: angle,distance,yaw)
+    Serial.print(angle);
+    Serial.print(",");
+    Serial.print(distance);
+    Serial.print(",");
+    Serial.println(yaw);
+  }
+}
+
+float getDistance() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  long duration = pulseIn(echoPin, HIGH);
+  return duration * 0.034 / 2; // Distance en cm
+}
