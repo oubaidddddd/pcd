@@ -85,7 +85,7 @@ void loop() {
   Serial.println("=======================================");
 
   // Comportement du robot basé sur la distance
-  /*int minFront = min(distanceFront1, distanceFront2); // Distance minimale à l'avant
+  int minFront = min(distanceFront1, distanceFront2); // Distance minimale à l'avant
   if (minFront > 20 || minFront == 0) {
     if (distanceLeft > 10 && distanceRight > 10) {
       forward(50); // Avancer si pas d'obstacles
@@ -99,8 +99,7 @@ void loop() {
     back(500); // Reculer légèrement
     left(200); // Tourner à gauche pour éviter l'obstacle
   }
-  delay(100); // Pause pour la stabilité*/
-  forward(1);
+  delay(100); // Pause pour la stabilité
 }
 
 // ----------- Fonctions de mouvement -----------
